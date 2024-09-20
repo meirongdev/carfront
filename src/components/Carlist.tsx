@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCars, deleteCar } from '../api/cars'
 import { DataGrid, GridColDef, GridCellParams } from '@mui/x-data-grid'
 import Snackbar from '@mui/material/Snackbar'
+import { AddCar } from './AddCar'
 import ConfirmDialog from './ConfirmDialog'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 export function Carlist() {
   const [openToast, setOpenToast] = useState(false)
@@ -51,14 +54,14 @@ export function Carlist() {
       sortable: false,
       filterable: false,
       renderCell: (params: GridCellParams) => (
-        <button
+        <IconButton
           onClick={() => {
             setLinkToDelete(params.row._links.self.href)
             setOpenDeleteDialog(true)
           }}
         >
-          Delete
-        </button>
+          <DeleteIcon fontSize='small' />
+        </IconButton>
       ),
     },
   ]
@@ -80,6 +83,7 @@ export function Carlist() {
   } else if (isSuccess) {
     return (
       <>
+        <AddCar />
         <DataGrid
           rows={data}
           columns={columns}
