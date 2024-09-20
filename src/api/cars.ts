@@ -5,6 +5,7 @@ export const getCars = async (): Promise<CarResponse[]> => {
   const response = await axios.get(
     `${import.meta.env.VITE_BACKEND_URL}/api/cars`,
   )
+  console.log(response)
   return response.data._embedded.cars
 }
 

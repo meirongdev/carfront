@@ -5,7 +5,6 @@ export type CarResponse = {
   color: string
   regisrationNumber: string
   modelYear: number
-  description: string
   price: number
   _links: {
     self: {
