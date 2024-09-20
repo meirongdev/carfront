@@ -1,8 +1,12 @@
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCars, deleteCar } from '../api/cars'
 import { DataGrid, GridColDef, GridCellParams } from '@mui/x-data-grid'
+import Snackbar from '@mui/material/Snackbar'
 
 export function Carlist() {
+  const [open, setOpen] = useState(false)
+
   const queryClient = useQueryClient()
   const { data, isError, isLoading, isSuccess } = useQuery({
     queryKey: ['cars'],
@@ -18,6 +22,7 @@ export function Carlist() {
       return url
     },
     onSuccess: () => {
+      setOpen(true)
       queryClient.invalidateQueries({ queryKey: ['cars'] })
     },
     onError: (error, url, context) => {
@@ -60,12 +65,20 @@ export function Carlist() {
     return <div>Error when fetching cars... </div>
   } else if (isSuccess) {
     return (
-      <DataGrid
-        rows={data}
-        columns={columns}
-        disableRowSelectionOnClick={true}
-        getRowId={(row) => row._links.self.href}
-      />
+      <>
+        <DataGrid
+          rows={data}
+          columns={columns}
+          disableRowSelectionOnClick={true}
+          getRowId={(row) => row._links.self.href}
+        />
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+          message='Car deleted successfully'
+        />
+      </>
     )
   }
 }
