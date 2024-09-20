@@ -3,9 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCars, deleteCar } from '../api/cars'
 import { DataGrid, GridColDef, GridCellParams } from '@mui/x-data-grid'
 import Snackbar from '@mui/material/Snackbar'
+import ConfirmDialog from './ConfirmDialog'
 
 export function Carlist() {
-  const [open, setOpen] = useState(false)
+  const [openToast, setOpenToast] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [linkToDelete, setLinkToDelete] = useState('')
 
   const queryClient = useQueryClient()
   const { data, isError, isLoading, isSuccess } = useQuery({
@@ -22,7 +25,7 @@ export function Carlist() {
       return url
     },
     onSuccess: () => {
-      setOpen(true)
+      setOpenToast(true)
       queryClient.invalidateQueries({ queryKey: ['cars'] })
     },
     onError: (error, url, context) => {
@@ -50,7 +53,8 @@ export function Carlist() {
       renderCell: (params: GridCellParams) => (
         <button
           onClick={() => {
-            mutate(params.row._links.self.href)
+            setLinkToDelete(params.row._links.self.href)
+            setOpenDeleteDialog(true)
           }}
         >
           Delete
@@ -58,6 +62,16 @@ export function Carlist() {
       ),
     },
   ]
+
+  const handleCloseDialog = () => {
+    setOpenDeleteDialog(false)
+  }
+  const handleConfirmAction = () => {
+    if (linkToDelete) {
+      mutate(linkToDelete)
+    }
+    setOpenDeleteDialog(false)
+  }
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -72,10 +86,17 @@ export function Carlist() {
           disableRowSelectionOnClick={true}
           getRowId={(row) => row._links.self.href}
         />
+        <ConfirmDialog
+          open={openDeleteDialog}
+          handleClose={handleCloseDialog}
+          handleConfirm={handleConfirmAction}
+          title='Are you sure delete the car?'
+          message='Do you really want to perform this action?'
+        />
         <Snackbar
-          open={open}
+          open={openToast}
           autoHideDuration={6000}
-          onClose={() => setOpen(false)}
+          onClose={() => setOpenToast(false)}
           message='Car deleted successfully'
         />
       </>
